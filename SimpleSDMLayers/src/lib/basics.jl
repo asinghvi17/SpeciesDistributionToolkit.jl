@@ -58,7 +58,7 @@ function grid(layer::T) where {T <: SimpleSDMLayer}
 end
 
 """
-    cellsize(layer::SimpleSDMLayer)
+    surfacearea(layer::SimpleSDMLayer)
 
 Returns a layer of the same type (predictor or response) where the value of each
 cell is the surface area of this cell assuming that the Earth is round (not
@@ -71,7 +71,7 @@ of cells needed to cover the entire ribbon, which is given by the ratio between
 the longitudinal size of each cell and 360 (being the breadth of possible
 longitudes).
 """
-function cellsize(layer::T; R = 6371.0) where {T <: SimpleSDMLayer}
+function surfacearea(layer::T; R = 6371.0) where {T <: SimpleSDMLayer}
     lonstride, latstride = 2.0 .* stride(layer)
     cells_per_ribbon = 360.0 / lonstride
     latitudes_ranges = (layer.bottom):latstride:(layer.top)
@@ -89,4 +89,9 @@ function cellsize(layer::T; R = 6371.0) where {T <: SimpleSDMLayer}
     RT = T <: SimpleSDMResponse ? SimpleSDMResponse : SimpleSDMPredictor
     surface_layer = RT(surface_grid; SimpleSDMLayers.boundingbox(layer)...)
     return mask(layer, surface_layer)
+end
+
+function cellsize(args...; kwargs...)
+    @warn "cellsize is deprecated, use surfacearea instead"
+    return surfacearea(args...; kwargs...)
 end
